@@ -1,29 +1,36 @@
 # MiniGame - Dodger Game
 
-A browser-based game where you control a blue box using arrow keys, dodging red obstacles and collecting green items.
+A browser-based game where you control a rocket using arrow keys, dodging bombs and collecting green items.
 
 ## Features
 
-- Box movement using arrow keys
+- Rocket movement using arrow keys
+- Start screen with instructions
+- Game only starts when Up arrow key is pressed
 - Boundary collision detection
-- Obstacles falling from the top of the screen
-- Collectible good items for scoring points
+- Bomb obstacles falling from the top of the screen
+- Collectible green items for scoring points
 - Increasing difficulty as score grows
 - Game over on collision with obstacles
 - Score tracking system
+- Explosion animation on collision
+- Background music during gameplay
 
 ## How to Play
 
 1. Open index.html in a web browser
-2. Use the arrow keys to move the blue box
-3. Avoid the red circular obstacles
-4. Collect the green circular items to earn points
-5. The game speed increases over time and with your score
-6. Game ends when your box hits a red obstacle
+2. Press the UP ARROW key to start the game
+3. Use the arrow keys to move the rocket
+4. Avoid the bomb obstacles
+5. Collect the green circular items to earn points
+6. The game speed increases over time and with your score
+7. Game ends when your rocket hits a bomb
 
 ## Technical Details
 
 - Uses HTML5 and vanilla JavaScript
 - Utilizes requestAnimationFrame for smooth animation
-- Implements collision detection between objects
+- Implements circular collision detection between objects
+- CSS animations for explosion effects
 - Responsive design that works with different window sizes
+- Audio integration for game effects and background music

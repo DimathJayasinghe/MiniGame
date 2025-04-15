@@ -3,7 +3,6 @@
     <title>Dodger Game</title>
     <style>
         body {
-            background-color: rgb(0, 0, 0);
             margin: 0;
             overflow: hidden;
         }
@@ -11,22 +10,31 @@
             width: 100%;
             height: 100vh;
             position: relative;
+            background-image: url('./Assets/Images/Background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
         #Box{
-            width: 100px;
-            height: 100px;
-            background-color: cornflowerblue;
+            width: 150px;
+            height: 150px;
             position: absolute;
+            border-radius: 50%;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
+            background-image: url('./Assets/Images/Rocket.png');
+            background-size: cover;
+            background-position: center;
         }
         .obstacle {
             position: absolute;
-            width: 50px;
-            height: 50px;
-            background-color: red;
+            width: 200px;
+            height: 200px;
             border-radius: 50%;
+            background-image: url('./Assets/Images/Bomb.png');
+            background-size: cover;
+            background-position: center;
         }
         .goodItem {
             position: absolute;
@@ -43,18 +51,59 @@
             font-size: 24px;
             font-family: Arial, sans-serif;
         }
+        .explosion {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background-image: url('./Assets/Images/explosion.png');
+            background-size: cover;
+            background-position: center;
+            z-index: 100;
+        }
+        @keyframes explosionAnimation {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        .explosion {
+            animation: explosionAnimation 1s forwards;
+        }
+        #startScreen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
     <div id="continer">
         <div id="Box"></div>
         <div id="score">Score: 0</div>
+        <div id="startScreen">
+            <h1>Dodger Game</h1>
+            <p>Press UP ARROW key to start the game</p>
+        </div>
+        <audio id="bgAudio" loop>
+            <source src="./Assets/Audio/bgAudio.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="explosionAudio">
+            <source src="./Assets/Audio/explosion.mp3" type="audio/mpeg">
+        </audio>
     </div>
 </body>
 <script>
     const box = document.getElementById('Box');
     const container = document.getElementById('continer');
     const scoreDisplay = document.getElementById('score');
+    const startScreen = document.getElementById('startScreen');
     let position = {
         top: window.innerHeight - 120,
         left: window.innerWidth / 2 - 50
@@ -66,14 +115,20 @@
     let goodItems = [];
     let score = 0;
     let gameSpeed = 3;
-    let gameActive = true;
+    let gameActive = false;
+    let gameStarted = false;
 
-
-    position.top = parseInt(box.style.top) || window.innerHeight;
-    position.left = parseInt(box.style.left) || window.innerWidth / 2 - 50;
+    const bgAudio = document.getElementById('bgAudio');
+    const explosionAudio = document.getElementById('explosionAudio');
+    
+    explosionAudio.load();
+    
+    position.top = parseInt(box.style.top) || window.innerHeight - 170;
+    position.left = parseInt(box.style.left) || window.innerWidth / 2 - 75;
+    box.style.top = position.top + 'px';
+    box.style.left = position.left + 'px';
 
     function updatePosition() {
-        
         let moved = false;
         if (keyPressed['ArrowUp']) {
             position.top -= step;
@@ -109,8 +164,26 @@
     }
 
     document.addEventListener('keydown', (event) => {
+        if (!gameStarted && event.key === 'ArrowUp') {
+            gameStarted = true;
+            gameActive = true;
+            startScreen.style.display = 'none';
+            
+            setTimeout(createObstacle, 1000);
+            setTimeout(createGoodItem, 2000);
+            setInterval(() => {
+                if (gameActive) {
+                    gameSpeed += 0.01;
+                }
+            }, 1000);
+            
+            requestAnimationFrame(gameLoop);
+            
+            bgAudio.play().catch(e => console.log("Audio play failed:", e));
+        }
+        
+        if(!gameActive) return;
         if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
-            // box.style.backgroundColor = 'red';
             keyPressed[event.key] = true;
             
             if (animationId === null) {
@@ -124,7 +197,6 @@
         
         if (!Object.keys(keyPressed).some(key => 
             ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key))) {
-            box.style.backgroundColor = 'cornflowerblue';
             if (animationId !== null) {
                 cancelAnimationFrame(animationId);
                 animationId = null;
@@ -184,8 +256,22 @@
 
             if (checkCollision(obstacle, box)) {
                 gameActive = false;
-                alert('Game Over! Your score: ' + score);
-                location.reload();
+                
+                bgAudio.pause();
+                explosionAudio.currentTime = 0;
+                explosionAudio.play();
+                
+                const boxRect = box.getBoundingClientRect();
+                const centerX = (boxRect.left + boxRect.right) / 2;
+                const centerY = (boxRect.top + boxRect.bottom) / 2;
+                showExplosion(centerX, centerY);
+                
+                setTimeout(() => {
+                    alert('Game Over! Your score: ' + score);
+                    location.reload();
+                }, 1000);
+                
+                return;
             }
         }
 
@@ -216,28 +302,40 @@
     }
 
     function checkCollision(element1, element2) {
-        const box2Rect = element2.getBoundingClientRect();
+        const rect1 = element1.element.getBoundingClientRect();
+        const rect2 = element2.getBoundingClientRect();
         
-        const rect1 = {
-            left: element1.left,
-            right: element1.left + element1.element.offsetWidth,
-            top: element1.top,
-            bottom: element1.top + element1.element.offsetHeight
+        const circle1 = {
+            x: rect1.left + rect1.width / 2,
+            y: rect1.top + rect1.height / 2,
+            radius: rect1.width / 2
         };
         
-        const rect2 = {
-            left: box2Rect.left,
-            right: box2Rect.right,
-            top: box2Rect.top,
-            bottom: box2Rect.bottom
+        const circle2 = {
+            x: rect2.left + rect2.width / 2,
+            y: rect2.top + rect2.height / 2,
+            radius: rect2.width / 2
         };
-
-        return !(rect1.right < rect2.left || 
-                rect1.left > rect2.right || 
-                rect1.bottom < rect2.top || 
-                rect1.top > rect2.bottom);
+        
+        const dx = circle1.x - circle2.x;
+        const dy = circle1.y - circle2.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        return distance < (circle1.radius + circle2.radius);
     }
-    
+
+    function showExplosion(x, y) {
+        const explosion = document.createElement('div');
+        explosion.className = 'explosion';
+        explosion.style.left = (x - 75) + 'px';
+        explosion.style.top = (y - 75) + 'px';
+        container.appendChild(explosion);
+        
+        setTimeout(() => {
+            container.removeChild(explosion);
+        }, 1000);
+    }
+
     function genarateRandomColor() {
         return 'hsl(' + Math.random() * 360 + ', 100%, 50%)';
     }
@@ -249,17 +347,5 @@
             item.style.backgroundColor = genarateRandomColor();
         });
     }
-
-    setTimeout(createObstacle, 1000);
-    setTimeout(createGoodItem, 2000);
-    // setTimeout(randomColorsForGoodItems,3500);
-    // setInterval(randomColorsForGoodItems,100);
-    setInterval(() => {
-        if (gameActive) {
-            gameSpeed += 0.01;
-        }
-    }, 1000);
-
-    requestAnimationFrame(gameLoop);
 </script>
 </html>
