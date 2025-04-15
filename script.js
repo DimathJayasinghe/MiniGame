@@ -97,9 +97,7 @@ document.addEventListener("keyup", (event) => {
 function startGame() {
   gameStarted = true;
   gameActive = true;
-  startScreen.style.display = "none";
-  gameOverDisplay.style.display = "none";
-  scoreDisplay.style.display = "block";
+  
 
   score = 0;
   gameSpeed = 3;
@@ -174,7 +172,9 @@ function createGoodItem() {
 
 function gameLoop() {
   if (!gameActive) return;
-
+  startScreen.style.display = "none";
+  gameOverDisplay.style.display = "none";
+  scoreDisplay.style.display = "block";
   for (let i = obstacles.length - 1; i >= 0; i--) {
     const obstacle = obstacles[i];
     obstacle.top += gameSpeed;
@@ -211,7 +211,7 @@ function gameLoop() {
       setTimeout(() => {
         gameOverDisplay.style.display = "block";
         scoreDisplay.style.display = "none";
-      }, 1000);
+      }, 100);
 
       return;
     }
@@ -276,7 +276,7 @@ function showExplosion(x, y) {
 
   setTimeout(() => {
     container.removeChild(explosion);
-  }, 1000);
+  }, 3000);
 }
 
 document.addEventListener("keydown", (event) => {
