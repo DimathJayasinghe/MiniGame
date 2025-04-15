@@ -1,17 +1,29 @@
-# MiniGame
+# MiniGame - Dodger Game
 
-A simple browser-based game where you control a box using arrow keys.
+A browser-based game where you control a blue box using arrow keys, dodging red obstacles and collecting green items.
 
 ## Features
 
 - Box movement using arrow keys
 - Boundary collision detection
-- Visual feedback (color change) on movement
-- Smooth animation using requestAnimationFrame
+- Obstacles falling from the top of the screen
+- Collectible good items for scoring points
+- Increasing difficulty as score grows
+- Game over on collision with obstacles
+- Score tracking system
 
 ## How to Play
 
 1. Open index.html in a web browser
 2. Use the arrow keys to move the blue box
-3. The box turns red while moving and returns to blue when stopped
-4. The box cannot move beyond the browser window boundaries
+3. Avoid the red circular obstacles
+4. Collect the green circular items to earn points
+5. The game speed increases over time and with your score
+6. Game ends when your box hits a red obstacle
+
+## Technical Details
+
+- Uses HTML5 and vanilla JavaScript
+- Utilizes requestAnimationFrame for smooth animation
+- Implements collision detection between objects
+- Responsive design that works with different window sizes
