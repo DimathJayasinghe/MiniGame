@@ -25,9 +25,3 @@ A fast-paced, browser-based arcade game where players control a rocket ship navi
 - Optimized game loop with requestAnimationFrame
 - Object pooling for performance optimization
 
-## 🚧 Future Enhancements
-
-- Power-ups and special abilities
-- Multiple difficulty levels
-- Local high score system
-- Mobile touch controls
