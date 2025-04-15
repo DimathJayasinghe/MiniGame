@@ -80,6 +80,7 @@ document.addEventListener("keydown", (event) => {
 });
 
 document.addEventListener("keyup", (event) => {
+  if (!gameActive) return;
   delete keyPressed[event.key];
 
   if (
@@ -97,7 +98,6 @@ document.addEventListener("keyup", (event) => {
 function startGame() {
   gameStarted = true;
   gameActive = true;
-  
 
   score = 0;
   gameSpeed = 3;
@@ -117,7 +117,7 @@ function startGame() {
   setTimeout(createGoodItem, 2000);
   setInterval(() => {
     if (gameActive) {
-      gameSpeed += 0.03;
+      gameSpeed += 0.01;
     }
   }, 1000);
 
@@ -131,11 +131,11 @@ function createObstacle() {
 
   const obstacle = document.createElement("div");
   obstacle.className = "obstacle";
-  
-  const obstacleWidth = 200; 
+
+  const obstacleWidth = 200;
   const maxLeft = window.innerWidth - obstacleWidth;
   const left = Math.random() * maxLeft;
-  
+
   obstacle.style.left = left + "px";
   obstacle.style.top = "-50px";
   container.appendChild(obstacle);
@@ -153,11 +153,11 @@ function createGoodItem() {
 
   const goodItem = document.createElement("div");
   goodItem.className = "goodItem";
-  
-  const goodItemWidth = 150; 
+
+  const goodItemWidth = 150;
   const maxLeft = window.innerWidth - goodItemWidth;
   const left = Math.random() * maxLeft;
-  
+
   goodItem.style.left = left + "px";
   goodItem.style.top = "-40px";
   container.appendChild(goodItem);
@@ -236,7 +236,7 @@ function gameLoop() {
       collectAudio.currentTime = 0;
       collectAudio.play();
       if (score % 50 === 0) {
-        gameSpeed += 0.5;
+        gameSpeed += 0.02;
       }
     }
   }
