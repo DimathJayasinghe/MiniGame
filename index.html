@@ -1,48 +1,80 @@
 <!DOCTYPE html>
 <head>
-    <title>Simple project</title>
+    <title>Dodger Game</title>
     <style>
         body {
             background-color: rgb(0, 0, 0);
+            margin: 0;
+            overflow: hidden;
         }
         #continer{
             width: 100%;
-            height: 100%;
-            justify-content: center;
-            align-items: center;
+            height: 100vh;
+            position: relative;
         }
         #Box{
             width: 100px;
             height: 100px;
-            background-color:cornflowerblue;
-            position: relative;
-            top: 0px;
-            left: 0px;
-            overflow: hidden;
+            background-color: cornflowerblue;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .obstacle {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: red;
+            border-radius: 50%;
+        }
+        .goodItem {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: rgb(0, 255, 0);
+            border-radius: 50%;
+        }
+        #score {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            color: white;
+            font-size: 24px;
+            font-family: Arial, sans-serif;
         }
     </style>
 </head>
 <body>
     <div id="continer">
         <div id="Box"></div>
+        <div id="score">Score: 0</div>
     </div>
 </body>
 <script>
     const box = document.getElementById('Box');
+    const container = document.getElementById('continer');
+    const scoreDisplay = document.getElementById('score');
     let position = {
-        top: 0,
-        left: 0
+        top: window.innerHeight - 120,
+        left: window.innerWidth / 2 - 50
     };
-    const step = 5;
+    const step = 10;
     const keyPressed = {};
     let animationId = null;
+    let obstacles = [];
+    let goodItems = [];
+    let score = 0;
+    let gameSpeed = 3;
+    let gameActive = true;
+
+
+    position.top = parseInt(box.style.top) || window.innerHeight;
+    position.left = parseInt(box.style.left) || window.innerWidth / 2 - 50;
 
     function updatePosition() {
-        position.top = parseInt(box.style.top) || 0;
-        position.left = parseInt(box.style.left) || 0;
         
         let moved = false;
-        
         if (keyPressed['ArrowUp']) {
             position.top -= step;
             moved = true;
@@ -50,7 +82,7 @@
             position.top += step;
             moved = true;
         }
-        
+
         if (keyPressed['ArrowLeft']) {
             position.left -= step;
             moved = true;
@@ -61,10 +93,10 @@
         
         if (position.top < 0) position.top = 0;
         if (position.left < 0) position.left = 0;
-        if (position.top > window.innerHeight - box.offsetHeight) 
-            position.top = window.innerHeight - box.offsetHeight;
         if (position.left > window.innerWidth - box.offsetWidth) 
             position.left = window.innerWidth - box.offsetWidth;
+        if (position.top > window.innerHeight - box.offsetHeight) 
+            position.top = window.innerHeight - box.offsetHeight;
         
         box.style.top = position.top + 'px';
         box.style.left = position.left + 'px';
@@ -78,7 +110,7 @@
 
     document.addEventListener('keydown', (event) => {
         if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
-            box.style.backgroundColor = 'red';
+            // box.style.backgroundColor = 'red';
             keyPressed[event.key] = true;
             
             if (animationId === null) {
@@ -86,7 +118,7 @@
             }
         }
     });
-
+    
     document.addEventListener('keyup', (event) => {
         delete keyPressed[event.key];
         
@@ -100,7 +132,134 @@
         }
     });
 
-    
+    function createObstacle() {
+        if (!gameActive) return;
+        
+        const obstacle = document.createElement('div');
+        obstacle.className = 'obstacle';
+        const left = Math.random() * (window.innerWidth - 50);
+        obstacle.style.left = left + 'px';
+        obstacle.style.top = '-50px';
+        container.appendChild(obstacle);
+        obstacles.push({
+            element: obstacle,
+            left: left,
+            top: -50
+        });
 
+        setTimeout(createObstacle, Math.random() * 1500 + 500);
+    }
+
+    function createGoodItem() {
+        if (!gameActive) return;
+        
+        const goodItem = document.createElement('div');
+        goodItem.className = 'goodItem';
+        const left = Math.random() * (window.innerWidth - 40);
+        goodItem.style.left = left + 'px';
+        goodItem.style.top = '-40px';
+        container.appendChild(goodItem);
+        goodItems.push({
+            element: goodItem,
+            left: left,
+            top: -40
+        });
+
+        setTimeout(createGoodItem, Math.random() * 2000 + 1000);
+    }
+
+    function gameLoop() {
+        if (!gameActive) return;
+
+        for (let i = obstacles.length - 1; i >= 0; i--) {
+            const obstacle = obstacles[i];
+            obstacle.top += gameSpeed;
+            obstacle.element.style.top = obstacle.top + 'px';
+
+            if (obstacle.top > window.innerHeight) {
+                container.removeChild(obstacle.element);
+                obstacles.splice(i, 1);
+                continue;
+            }
+
+            if (checkCollision(obstacle, box)) {
+                gameActive = false;
+                alert('Game Over! Your score: ' + score);
+                location.reload();
+            }
+        }
+
+        for (let i = goodItems.length - 1; i >= 0; i--) {
+            const item = goodItems[i];
+            item.top += gameSpeed;
+            item.element.style.top = item.top + 'px';
+
+            if (item.top > window.innerHeight) {
+                container.removeChild(item.element);
+                goodItems.splice(i, 1);
+                continue;   
+            }
+
+            if (checkCollision(item, box)) {
+                container.removeChild(item.element);
+                goodItems.splice(i, 1);
+                score += 10;
+                scoreDisplay.textContent = 'Score: ' + score;
+                
+                if (score % 50 === 0) {
+                    gameSpeed += 0.5;
+                }
+            }
+        }
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    function checkCollision(element1, element2) {
+        const box2Rect = element2.getBoundingClientRect();
+        
+        const rect1 = {
+            left: element1.left,
+            right: element1.left + element1.element.offsetWidth,
+            top: element1.top,
+            bottom: element1.top + element1.element.offsetHeight
+        };
+        
+        const rect2 = {
+            left: box2Rect.left,
+            right: box2Rect.right,
+            top: box2Rect.top,
+            bottom: box2Rect.bottom
+        };
+
+        return !(rect1.right < rect2.left || 
+                rect1.left > rect2.right || 
+                rect1.bottom < rect2.top || 
+                rect1.top > rect2.bottom);
+    }
+    
+    function genarateRandomColor() {
+        return 'hsl(' + Math.random() * 360 + ', 100%, 50%)';
+    }
+
+    function randomColorsForGoodItems() {
+        if (!gameActive) return;
+        const goodItems = document.querySelectorAll('.goodItem');
+        goodItems.forEach(item => {
+            item.style.backgroundColor = genarateRandomColor();
+        });
+    }
+
+    setTimeout(createObstacle, 1000);
+    setTimeout(createGoodItem, 2000);
+    // setTimeout(randomColorsForGoodItems,3500);
+    // setInterval(randomColorsForGoodItems,100);
+    setInterval(() => {
+        if (gameActive) {
+            gameSpeed += 0.01;
+        }
+    }, 1000);
+
+    requestAnimationFrame(gameLoop);
 </script>
 </html>
