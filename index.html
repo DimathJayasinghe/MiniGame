@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<head>
+    <title>Simple project</title>
+    <style>
+        body {
+            background-color: rgb(0, 0, 0);
+        }
+        #continer{
+            width: 100%;
+            height: 100%;
+            justify-content: center;
+            align-items: center;
+        }
+        #Box{
+            width: 100px;
+            height: 100px;
+            background-color:cornflowerblue;
+            position: relative;
+            top: 0px;
+            left: 0px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div id="continer">
+        <div id="Box"></div>
+    </div>
+</body>
+<script>
+    const box = document.getElementById('Box');
+    let position = {
+        top: 0,
+        left: 0
+    };
+    const step = 5;
+    const keyPressed = {};
+    let animationId = null;
+
+    function updatePosition() {
+        position.top = parseInt(box.style.top) || 0;
+        position.left = parseInt(box.style.left) || 0;
+        
+        let moved = false;
+        
+        if (keyPressed['ArrowUp']) {
+            position.top -= step;
+            moved = true;
+        } else if (keyPressed['ArrowDown']) {
+            position.top += step;
+            moved = true;
+        }
+        
+        if (keyPressed['ArrowLeft']) {
+            position.left -= step;
+            moved = true;
+        } else if (keyPressed['ArrowRight']) {
+            position.left += step;
+            moved = true;
+        }
+        
+        if (position.top < 0) position.top = 0;
+        if (position.left < 0) position.left = 0;
+        if (position.top > window.innerHeight - box.offsetHeight) 
+            position.top = window.innerHeight - box.offsetHeight;
+        if (position.left > window.innerWidth - box.offsetWidth) 
+            position.left = window.innerWidth - box.offsetWidth;
+        
+        box.style.top = position.top + 'px';
+        box.style.left = position.left + 'px';
+        
+        if (moved) {
+            animationId = requestAnimationFrame(updatePosition);
+        } else {
+            animationId = null;
+        }
+    }
+
+    document.addEventListener('keydown', (event) => {
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+            box.style.backgroundColor = 'red';
+            keyPressed[event.key] = true;
+            
+            if (animationId === null) {
+                animationId = requestAnimationFrame(updatePosition);
+            }
+        }
+    });
+
+    document.addEventListener('keyup', (event) => {
+        delete keyPressed[event.key];
+        
+        if (!Object.keys(keyPressed).some(key => 
+            ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key))) {
+            box.style.backgroundColor = 'cornflowerblue';
+            if (animationId !== null) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+        }
+    });
+
+    
+
+</script>
+</html>
