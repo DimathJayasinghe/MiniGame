@@ -1,36 +1,33 @@
-# MiniGame - Dodger Game
+# Dodger Game
 
-A browser-based game where you control a rocket using arrow keys, dodging bombs and collecting green items.
+A fast-paced, browser-based arcade game where players control a rocket ship navigating through a field of falling bombs while collecting valuable items.
 
-## Features
+## 🎮 How to Play
 
-- Rocket movement using arrow keys
-- Start screen with instructions
-- Game only starts when Up arrow key is pressed
-- Boundary collision detection
-- Bomb obstacles falling from the top of the screen
-- Collectible green items for scoring points
-- Increasing difficulty as score grows
-- Game over on collision with obstacles
-- Score tracking system
-- Explosion animation on collision
-- Background music during gameplay
+1. Open `index.html` in any modern web browser
+2. Press the **UP ARROW** key to begin your mission
+3. Control your rocket with the **ARROW KEYS**:
+   - ↑ (Up): Move upward
+   - ↓ (Down): Move downward
+   - ← (Left): Move left
+   - → (Right): Move right
+4. **Avoid** the falling bomb obstacles
+5. **Collect** the green items to earn points
+6. The game speed increases as you collect more items
+7. Your mission ends if your rocket collides with a bomb
 
-## How to Play
+## 🔧 Technical Implementation
 
-1. Open index.html in a web browser
-2. Press the UP ARROW key to start the game
-3. Use the arrow keys to move the rocket
-4. Avoid the bomb obstacles
-5. Collect the green circular items to earn points
-6. The game speed increases over time and with your score
-7. Game ends when your rocket hits a bomb
+- Built with vanilla JavaScript, HTML5, and CSS3
+- Advanced collision detection using circular hitbox algorithms
+- CSS animations for visual effects
+- Asynchronous audio management for game sound effects
+- Optimized game loop with requestAnimationFrame
+- Object pooling for performance optimization
 
-## Technical Details
+## 🚧 Future Enhancements
 
-- Uses HTML5 and vanilla JavaScript
-- Utilizes requestAnimationFrame for smooth animation
-- Implements circular collision detection between objects
-- CSS animations for explosion effects
-- Responsive design that works with different window sizes
-- Audio integration for game effects and background music
+- Power-ups and special abilities
+- Multiple difficulty levels
+- Local high score system
+- Mobile touch controls
